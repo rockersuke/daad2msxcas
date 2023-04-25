@@ -3,7 +3,7 @@ Daad2MsxCas
 
 English docs below.
 
-Daad2MsxCas versión 1.0 211003 (c) 2020-21 Pedro Fernández
+Daad2MsxCas versión 1.0.1b1 230426 (c) 2020-23 Pedro Fernández
 
 Crea ficheros .cas para emuladores de MSX a partir de bases de datos de aventuras DAAD compiladas para MSX.
 
@@ -29,6 +29,7 @@ Opciones
 ========
 
 - -scr fichero opcional para usar como pantalla de carga (SCR de Spectrum).
+- -sc2 (experimental) fichero opcional para usar como pantalla de carga (SC2 de MSX)
 - -mdg fichero opcional con gráficos de MSX convertidos desde Spectrum.
 - -h Muestra ayuda.
 - -v Modo verboso.
@@ -46,7 +47,11 @@ En caso de tener ya hechos unos gráficos de Spectrum con esta última, existe u
 Historia
 ========
 
-- **1.0 211003**
+- **1.0.1b1** 230426
+
+ - Opción -sc2 para cargar archivos .sc2 como pantalla de carga.
+
+- **1.0** 211003
 
  -  Cambiado el IM 2 por un IM 1 en el intérprete inglés. Ahora los juegos en inglés no se cuelgan en MSX2. Por qué eso no sucedía con el intérprete español sigue siendo un misterio.
 
@@ -54,7 +59,7 @@ Historia
 Daad2MsxCas
 ***********
 
-Daad2MsxCas version 1.0 211003 (c) 2020-21 Pedro Fernández
+Daad2MsxCas version 1.0.1b1 230426 (c) 2020-23 Pedro Fernández
 
 Creates .cas files for MSX emulators from DAAD adventure databases compiled to MSX.
 
@@ -80,6 +85,7 @@ Options
 =======
 
 - -scr optional file to use as loading screen (Spectrum SCR file).
+- -sc2 (experimental) optional file to use as loading screen (MSX SC2 file).
 - -mdg optional file with MSX graphics converted from Spectrum.
 - -h shows help.
 - -v verbose mode.
@@ -97,6 +103,10 @@ In case you 've got already some Spectrum graphics made with this last one, ther
 History
 =======
 
-- **1.0 211003**
+- **1.0.1b1** 230426
+
+ - New option -sc2 to use a .sc2 file as a loading screen.
+
+- **1.0** 211003
 
  - Replaced IM 2 with IM 1 in english terp. Now english games don't crash in MSX2. Why this didn't happened with the spanish terp is still unknown.

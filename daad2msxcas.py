@@ -3,7 +3,9 @@ import argparse
 parser = argparse.ArgumentParser(description = 'Crea ficheros .cas de MSX para aventuras de DAAD.')
 parser.add_argument ("in_file", help = 'Nombre de fichero DDB para MSX.')
 parser.add_argument ("out_file", help = 'Nombre de fichero CAS generado para MSX.', nargs='?')
-parser.add_argument ('-scr', metavar='<file>', help = 'Fichero de pantalla de carga SCR.', type = str)
+group = parser.add_mutually_exclusive_group()
+group.add_argument ('-scr', metavar='<file>', help = 'Fichero de pantalla de carga SCR.', type = str)
+group.add_argument ('-sc2', metavar='<file>', help = 'Fichero de pantalla de carga SC2.', type = str)
 parser.add_argument ('-mdg', metavar='<file>', help = 'Fichero de gráficos MDG para MSX.', type = str)
 parser.add_argument ('-v', help = 'Modo verboso.', action = 'store_true')
 parser.add_argument ('-e', help = 'Usar intérprete inglés.', action = 'store_true')
@@ -13,6 +15,7 @@ args=parser.parse_args()
 in_file = args.in_file
 out_file = args.out_file
 scr = args.scr
+sc2 = args.sc2
 mdg = args.mdg
 v = args.v
 e = args.e
@@ -25,7 +28,7 @@ if not (out_file.endswith('.cas')):
         out_file = out_file + '.cas'
 
 print ()
-print (' Daad2MsxCas : MSX DAAD-CAS Maker versión 1.0 211003 (c) 2020-21 Pedro Fernández.')
+print (' Daad2MsxCas : MSX DAAD-CAS Maker versión 1.0.1b1 230426 (c) 2020-21 Pedro Fernández.')
 print ('-h para ayuda / -h for options')
 print ()
 
@@ -19780,7 +19783,10 @@ blockTypeBinary = bytes([0xD0, 0xD0, 0xD0, 0xD0, 0xD0, 0xD0, 0xD0, 0xD0, 0xD0, 0
 
 blockTypeAscii = bytes([0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA])
 
-basicAscii = bytes('10 COLOR 15,1,1:SCREEN 2:BLOAD"cas:",R', 'ANSI')
+if sc2:
+    basicAscii = bytes('10 COLOR 15,1,1:SCREEN 2:BLOAD"cas:",R:BLOAD"cas:",R', 'ANSI')
+else:
+    basicAscii = bytes('10 COLOR 15,1,1:SCREEN 2:BLOAD"cas:",R', 'ANSI')
 
 with open(in_file, 'rb') as a:
         textDatabase = a.read()
@@ -19788,6 +19794,11 @@ with open(in_file, 'rb') as a:
 if scr:
         with open(scr, 'rb') as a:
                 screen = a.read()
+elif sc2:
+        with open(sc2, 'rb') as a:
+                screen = a.read()
+                aux2 = bytes([0xb8, 0x88, 0xcb, 0xc0, 0xb8, 0x88, 0x21, 0xcc, 0x88, 0x11, 0x00, 0x00, 0x01, 0x07, 0x38, 0xcd, 0x5c, 0x00, 0xc9])
+                screen = aux2 + screen
 else:
         screen = None
 
@@ -19810,7 +19821,10 @@ else:
 
 if v:
         if screen:
-                print ('Pantalla SCR cargada')
+                if scr:
+                    print ('Pantalla SCR cargada')
+                else:
+                    print ('Pantalla SC2 cargada')
         else:
                 print ('Sin pantalla de carga')
         print ()        
@@ -19853,7 +19867,7 @@ aux = int.to_bytes(graphicDatabaseLenght, 2, byteorder="little")
 loaderList[0x43] = aux[0]
 loaderList[0x44] = aux[1]
 
-if screen == None:
+if scr == None:
         for y in range (0x20, 0x34):
                 loaderList[y] = 0
 
@@ -19865,7 +19879,10 @@ asciiBlock = blockIdSequence + blockTypeAscii + bytes('AD    ', 'ANSI') + blockI
 loaderBlock = blockIdSequence + blockTypeBinary + bytes('ZonaFI', 'ANSI') + blockIdSequence + bytes(loaderList)
 
 if screen:
-        screenBlock = blockIdSequence + bytes([0x00]) + screen + bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,])
+        if scr:
+            screenBlock = blockIdSequence + bytes([0x00]) + screen + bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,])
+        else:
+            screenBlock = blockIdSequence + blockTypeBinary + bytes('SC2   ', 'ANSI') + blockIdSequence + screen
 else:
         screenBlock = None
 
@@ -19876,9 +19893,12 @@ graphicDatabaseBlock = blockIdSequence + bytes([0x00]) + graphicDatabase + bytes
 terpBlock = blockIdSequence + bytes([0x00]) + bytes(terpList) + bytes([0x00])
 
 if screenBlock == None:
-        casFile = asciiBlock + loaderBlock + textDatabaseBlock + graphicDatabaseBlock + terpBlock
+    casFile = asciiBlock + loaderBlock + textDatabaseBlock + graphicDatabaseBlock + terpBlock
 else:
+    if scr:
         casFile = asciiBlock + loaderBlock + screenBlock + textDatabaseBlock + graphicDatabaseBlock + terpBlock
+    else:
+        casFile = asciiBlock + screenBlock + loaderBlock + textDatabaseBlock + graphicDatabaseBlock + terpBlock
 
 with open(out_file, 'wb') as a:
         a.write(casFile)

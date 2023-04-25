@@ -1,10 +1,12 @@
 *.asm
+*.bin
 *.cas
 *.ddb
 *.dsf
 *.exe
 *.lnk
 *.mdg
+*.sc2
 *.sce
 *.scr
 *.sdg
